@@ -1,9 +1,14 @@
 package com.example.codemother.service;
 
+import com.example.codemother.model.dto.user.UserQueryRequest;
 import com.example.codemother.model.vo.LoginUserVO;
+import com.example.codemother.model.vo.UserVO;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.example.codemother.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
  * 用户 服务层。
@@ -15,6 +20,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户注册
+     *
      * @param Account
      * @param password
      * @param checkPassword
@@ -24,6 +30,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 获取已经脱敏的已经登录的用户信息
+     *
      * @param user
      * @return
      */
@@ -31,6 +38,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户登录
+     *
      * @param Account
      * @param password
      * @param request
@@ -50,5 +58,27 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean userLogout(HttpServletRequest request);
+
+    /**
+     * 获取单个用户信息
+     *
+     * @param user
+     * @return
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 获取脱敏后的数据列表
+     *
+     * @param userList
+     * @return
+     */
+    List<UserVO> getUserVOList(List<User> userList);
+
+    //盐值加密
+    String newPassword(String password);
+
+    QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
+
 
 }

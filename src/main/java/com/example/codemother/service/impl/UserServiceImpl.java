@@ -1,11 +1,15 @@
 package com.example.codemother.service.impl;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.codemother.exception.BusinessException;
 import com.example.codemother.exception.ErrorCode;
+import com.example.codemother.model.dto.user.UserQueryRequest;
 import com.example.codemother.model.enums.UserRoleEnum;
 import com.example.codemother.model.vo.LoginUserVO;
+import com.example.codemother.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.example.codemother.model.entity.User;
@@ -16,6 +20,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.codemother.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -188,10 +196,83 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
     }
 
+    @Override
+    public UserVO getUserVO(User user) {
+        // 空值检查：如果传入的User对象为null，直接返回null，避免空指针异常
+        if (user == null) {
+            return null;
+        }
+
+        // 创建目标VO对象实例
+        UserVO userVO = new UserVO();
+
+        // 属性拷贝：使用BeanUtil工具类将User对象的属性值拷贝到UserVO对象中
+        // 注意：两个对象的字段名和类型需要保持一致才能正确拷贝
+        BeanUtil.copyProperties(user, userVO);
+
+        // 返回转换后的VO对象
+        return userVO;
+    }
+
+    @Override
+    public List<UserVO> getUserVOList(List<User> userList) {
+        // 空集合检查：如果传入的用户列表为空或null，返回空集合而不是null，避免NPE
+        if (CollUtil.isEmpty(userList)) {
+            return new ArrayList<>();
+        }
+
+        // 使用Stream API进行批量转换：
+        // 1. stream()：将List转换为Stream流
+        // 2. map(this::getUserVO)：对每个User对象调用getUserVO方法进行转换
+        // 3. collect(Collectors.toList())：将Stream收集为List集合
+        return userList.stream()
+                .map(this::getUserVO)
+                .collect(Collectors.toList());
+    }
+
+
 
     //盐值加密
+    @Override
     public String newPassword(String password) {
         final String as = "Joseph_KkOma";
         return DigestUtils.md5DigestAsHex((password + as).getBytes());
     }
+
+    @Override
+    public QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest) {
+        // ==================== 参数校验 ====================
+        // 检查请求参数是否为null，如果为null则抛出业务异常
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+
+        // ==================== 参数提取 ====================
+        // 从查询请求对象中提取各个查询条件参数
+        Long id = userQueryRequest.getId();                // 用户ID（精确匹配）
+        String userAccount = userQueryRequest.getUserAccount(); // 用户账号（模糊匹配）
+        String userName = userQueryRequest.getUserName();      // 用户名称（模糊匹配）
+        String userProfile = userQueryRequest.getUserProfile(); // 用户简介（模糊匹配）
+        String userRole = userQueryRequest.getUserRole();     // 用户角色（精确匹配）
+        String sortField = userQueryRequest.getSortField();   // 排序字段
+        String sortOrder = userQueryRequest.getSortOrder();   // 排序顺序（ascend/descend）
+
+        // ==================== 构建查询条件 ====================
+        // 使用链式调用构建MyBatis Plus的QueryWrapper查询条件
+        return QueryWrapper.create()
+                // 精确匹配：ID相等查询（只有当id不为null时才会生效）
+                .eq("id", id)
+                // 精确匹配：用户角色相等查询（只有当userRole不为null时才会生效）
+                .eq("userRole", userRole)
+                // 模糊匹配：用户账号LIKE查询（包含匹配，支持模糊搜索）
+                .like("userAccount", userAccount)
+                // 模糊匹配：用户名称LIKE查询（包含匹配，支持模糊搜索）
+                .like("userName", userName)
+                // 模糊匹配：用户简介LIKE查询（包含匹配，支持模糊搜索）
+                .like("userProfile", userProfile)
+                // 排序条件：根据指定字段和顺序进行排序
+                // "ascend".equals(sortOrder) 返回true表示升序，false表示降序
+                .orderBy(sortField, "ascend".equals(sortOrder));
+    }
+
 }

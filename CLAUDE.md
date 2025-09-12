@@ -18,7 +18,7 @@ This is a Spring Boot 3.5.5 project with Java 21, using MyBatis-Flex for databas
 
 ## Database Configuration
 
-- **Database**: MySQL on localhost:3306, database name: `code-mother`
+- **Database**: MySQL on localhost:3306, database name: `code-mother-master`
 - **Connection pool**: HikariCP
 - **Schema**: SQL scripts located in `src/main/java/com/example/codemother/sql/`
 - **Code Generation**: MyBatis-Flex code generator in `MyBatisCodeGenerator.java`
@@ -51,7 +51,7 @@ java -cp target/classes com.example.codemother.generator.MyBatisCodeGenerator
 ### Database Operations
 ```bash
 # Execute SQL scripts (example)
-mysql -u root -p code-mother < src/main/java/com/example/codemother/sql/create_table.sql
+mysql -u root -p code-mother-master < src/main/java/com/example/codemother/sql/create_table.sql
 ```
 
 ## Project Structure
@@ -130,5 +130,8 @@ The project is in early development with:
 - Code generation setup
 - Basic exception handling
 - API documentation setup
+- Authentication and authorization system with AOP interceptors
 
-Note: The UserController implementation appears to be incomplete with some compilation issues that need to be addressed.
+### Known Issues
+- **UserController has duplicate method definitions**: Two `addUser` methods with the same mapping `/add` (lines 48 and 84) causing compilation errors
+- Need to resolve method conflicts between user registration and admin user creation
