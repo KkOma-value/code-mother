@@ -4,7 +4,7 @@ import com.example.codemother.common.BaseResponse;
 import com.example.codemother.common.ResultUtils;
 import com.example.codemother.exception.ErrorCode;
 import com.example.codemother.exception.ThrowUtils;
-import com.example.codemother.model.dto.UserLogging;
+import com.example.codemother.model.dto.UserAdd;
 import com.mybatisflex.core.paginate.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,12 +33,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add")
-    public BaseResponse addUser(@RequestBody UserLogging userLogging) {
-        ThrowUtils.throwIf(userLogging == null, ErrorCode.PARAMS_ERROR);
-        String userAccount = userLogging.getUserAccount();
-        String userPassword = userLogging.getUserPassword();
-        String checkPassword = userLogging.getCheckPassword();
-        long result = userService.userLogin(userAccount, userPassword, checkPassword);
+    public BaseResponse addUser(@RequestBody UserAdd userAdd) {
+        ThrowUtils.throwIf(userAdd == null, ErrorCode.PARAMS_ERROR);
+        String userAccount = userAdd.getUserAccount();
+        String userPassword = userAdd.getUserPassword();
+        String checkPassword = userAdd.getCheckPassword();
+        long result = userService.userAdd(userAccount, userPassword, checkPassword);
         return ResultUtils.success(result);
     }
 

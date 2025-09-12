@@ -12,5 +12,5 @@ import com.example.codemother.model.entity.User;
 public interface UserService extends IService<User> {
 
 
-    long userLogin(String Account, String password, String checkPassword);
+    long userAdd(String Account, String password, String checkPassword);
 }

@@ -25,14 +25,10 @@ import java.util.Queue;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Override
-    public long userLogin(String userAccount, String password, String checkPassword) {
+    public long userAdd(String userAccount, String password, String checkPassword) {
         //1.检验
         if (StrUtil.hasBlank(userAccount, password, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
-        }
-
-        if (!checkPassword.equals(password)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
         }
 
         if (userAccount.length() < 5) {
@@ -41,6 +37,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         if (password.length() < 5 || checkPassword.length() < 5) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度过短");
+        }
+
+        if (!checkPassword.equals(password)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
         }
 
         //2.查看是否重复
