@@ -18,6 +18,7 @@ server:
   servlet:
     context-path: /api
 
+
 springdoc:
   group-configs:
     - group: 'default'
@@ -27,3 +28,8 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+langchain4j:
+  open-ai:
+    chat-model:
+      max-tokens: 8129

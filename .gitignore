@@ -1,6 +1,7 @@
 ### CUSTOM ###
 application-local.yml
 test
+tmp
 
 
 HELP.md
