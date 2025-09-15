@@ -1,4 +1,4 @@
-package com.example.codemother.parser;
+package com.example.codemother.core.parser;
 
 import com.example.codemother.ai.model.MultiFileCodeResult;
 
