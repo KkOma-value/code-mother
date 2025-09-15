@@ -46,7 +46,7 @@ public class CodeFileSaver {
     }
 
     /**
-     * 写入单个文件
+     * 写入单个文件  File.separator：根据系统的不同会自动设置不同的分隔符
      */
     private static void writeToFile(String dirPath, String filename, String content) {
         String filePath = dirPath + File.separator + filename;
