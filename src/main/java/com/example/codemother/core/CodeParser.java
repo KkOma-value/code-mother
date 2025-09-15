@@ -10,8 +10,9 @@ import java.util.regex.Pattern;
  * 代码解析器
  * 提供静态方法解析不同类型的代码内容
  *
- * @author yupi
+ * @author kkoma
  */
+@Deprecated
 public class CodeParser {
 
     // 标准代码块格式模式
