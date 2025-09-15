@@ -9,7 +9,7 @@ spring:
     # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/code-mother
+    url: jdbc:mysql://localhost:3306/code-mother-master
     username: root
     password: dopa1997
 
@@ -29,7 +29,3 @@ knife4j:
   setting:
     language: zh_cn
 
-langchain4j:
-  open-ai:
-    chat-model:
-      max-tokens: 8129

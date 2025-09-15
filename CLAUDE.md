@@ -4,13 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Spring Boot 3.5.5 project with Java 21, using MyBatis-Flex for database operations. The project follows a typical layered architecture with controllers, services, mappers, and entities.
+This is a Spring Boot 3.5.5 project with Java 21, featuring AI-powered code generation using LangChain4j. The project combines traditional web application architecture with AI capabilities for generating HTML and multi-file code (HTML/CSS/JS) through OpenAI-compatible APIs.
 
 ## Key Technologies
 
 - **Spring Boot 3.5.5** with Java 21
 - **MyBatis-Flex 1.11.0** for database operations
 - **MySQL** database with HikariCP connection pool
+- **LangChain4j 1.1.0** for AI integration and code generation
+- **DeepSeek AI API** for code generation model
+- **Project Reactor** for reactive programming and streaming
 - **Lombok** for reducing boilerplate code
 - **Hutool 5.8.38** utility library
 - **Knife4j 4.4.0** for API documentation (OpenAPI 3)
@@ -40,18 +43,23 @@ mvn test
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-### Code Generation
-```bash
-# Run the MyBatis code generator
-java -cp target/classes com.example.codemother.generator.MyBatisCodeGenerator
-
-# Or run directly from IDE using the main method in MyBatisCodeGenerator
-```
-
 ### Database Operations
 ```bash
 # Execute SQL scripts (example)
 mysql -u root -p code-mother-master < src/main/java/com/example/codemother/sql/create_table.sql
+```
+
+### AI Code Generation Testing
+```bash
+# Test AI code generation via API endpoints
+curl -X POST http://localhost:8123/api/code/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Create a simple HTML page with CSS", "type": "HTML"}'
+
+# Test streaming AI code generation
+curl -X POST http://localhost:8123/api/code/generate/stream \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Create a responsive website", "type": "MULTI_FILE"}'
 ```
 
 ## Project Structure
@@ -65,14 +73,20 @@ mysql -u root -p code-mother-master < src/main/java/com/example/codemother/sql/c
 - **Enums**: Enumerations in `model/enums/` package
 
 ### Key Packages
+- `com.example.codemother.ai` - AI code generation services and models
+- `com.example.codemother.core` - Core business logic and facade classes
 - `com.example.codemother.common` - Common utilities and base classes
 - `com.example.codemother.config` - Configuration classes (CORS, etc.)
 - `com.example.codemother.exception` - Exception handling and error codes
-- `com.example.codemother.generator` - Code generation utilities
+- `com.example.codemother.generator` - MyBatis code generation utilities
 
 ### Configuration Files
 - `application.yml` - Main application configuration
+- `application-local.yml` - Local development configuration with AI API settings
 - `pom.xml` - Maven dependencies and build configuration
+- **AI Prompt Files**:
+  - `src/main/resources/codegen-html-system-prompt.txt` - HTML generation system prompt
+  - `src/main/resources/codegen-multi-file-system-prompt.txt` - Multi-file generation system prompt
 
 ## Code Conventions
 
@@ -99,12 +113,42 @@ mysql -u root -p code-mother-master < src/main/java/com/example/codemother/sql/c
 - Service implementations extend `ServiceImpl<Mapper, Entity>`
 - Follow standard Spring service patterns
 
-## Development Notes
+### AI Code Generation Architecture
+- **Facade Pattern**: `AiCodeGeneratorFacade` provides unified interface for code generation
+- **Strategy Pattern**: `CodeGenTypeEnum` supports HTML and MULTI_FILE generation types
+- **Factory Pattern**: `AiCodeGeneratorServiceFactory` creates LangChain4j AI service instances
+- **Reactive Programming**: Uses `Flux<String>` for streaming AI responses
+- **Structured Output**: LangChain4j `@Description` annotations ensure consistent AI response format
+
+## AI Configuration and Development Notes
+
+### AI API Configuration
+- **Provider**: DeepSeek API (OpenAI-compatible)
+- **Model**: `deepseek-chat`
+- **Base URL**: `https://api.deepseek.com`
+- **Max Tokens**: 8192
+- **Streaming**: Supported via Project Reactor
+- **Configuration**: Located in `application-local.yml`
+
+### AI Code Generation Workflow
+1. **Request Processing**: Facade validates input and dispatches to appropriate generator
+2. **AI Generation**: LangChain4j service calls AI model with system prompts
+3. **Code Parsing**: `CodeParser` extracts structured code from AI responses using regex
+4. **File Management**: `CodeFileSaver` creates unique directories and saves generated files
+5. **Streaming Support**: Real-time code generation with deferred file saving
+
+### Code Generation Types
+- **HTML**: Single HTML file with inline CSS/JS
+- **MULTI_FILE**: Separate HTML, CSS, and JS files
+- **Output Directory**: `tmp/code_output/` with snowflake ID-based naming
 
 ### API Documentation
 - Swagger UI available at `/api/doc.html` (Knife4j)
 - API base path: `/api`
 - Default server port: 8123
+- Key endpoints:
+  - `POST /api/code/generate` - Synchronous code generation
+  - `POST /api/code/generate/stream` - Streaming code generation
 
 ### Database Schema
 - Current tables: `user` (see `create_table.sql`)
@@ -112,9 +156,9 @@ mysql -u root -p code-mother-master < src/main/java/com/example/codemother/sql/c
 - Includes user management with roles (user/admin)
 
 ### Code Generation
-- The `MyBatisCodeGenerator` class can generate complete CRUD code
-- Generates to temporary package `com.example.codemother.genresult`
-- Configured for Lombok, Java 21, and MyBatis-Flex patterns
+- **MyBatis Generation**: `MyBatisCodeGenerator` for database CRUD code
+- **AI Generation**: LangChain4j-based for frontend code generation
+- **Output**: Generated code saved to `tmp/code_output/` directory
 
 ### Testing
 - Standard Spring Boot test structure in `src/test/`
@@ -123,15 +167,14 @@ mysql -u root -p code-mother-master < src/main/java/com/example/codemother/sql/c
 
 ## Current Implementation Status
 
-The project is in early development with:
-- Basic user management system
-- User login functionality (partially implemented)
-- Database schema and entities
-- Code generation setup
-- Basic exception handling
-- API documentation setup
-- Authentication and authorization system with AOP interceptors
+The project combines traditional Spring Boot architecture with AI capabilities:
+- **AI Code Generation**: Fully functional HTML and multi-file code generation
+- **User Management**: Basic system with authentication
+- **Database Integration**: MyBatis-Flex with MySQL
+- **Reactive Programming**: Streaming AI responses
+- **API Documentation**: Complete OpenAPI documentation
 
 ### Known Issues
 - **UserController has duplicate method definitions**: Two `addUser` methods with the same mapping `/add` (lines 48 and 84) causing compilation errors
-- Need to resolve method conflicts between user registration and admin user creation
+- **Streaming Error Handling**: Limited error recovery in streaming code generation
+- **AI Response Parsing**: May need enhanced parsing for edge cases in AI output formats

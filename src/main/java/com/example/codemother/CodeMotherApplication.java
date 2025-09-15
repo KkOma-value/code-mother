@@ -8,7 +8,6 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 //添加扫描文件
 @MapperScan("com.example.codemother.mapper")
-@ComponentScan({"com.example.codemother", "core"})
 public class CodeMotherApplication {
 
     public static void main(String[] args) {
