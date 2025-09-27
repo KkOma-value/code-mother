@@ -9,7 +9,7 @@ spring:
     # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/code-mother-master
+    url: jdbc:mysql://localhost:3306/code-mother
     username: root
     password: dopa1997
 
