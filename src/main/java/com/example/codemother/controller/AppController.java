@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.codemother.model.entity.App;
 import com.example.codemother.service.AppService;
+import com.example.codemother.service.ChatHistoryService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -53,6 +54,9 @@ public class AppController {
 
     @Autowired
     private AppService appService;
+
+    @Autowired
+    private ChatHistoryService chatHistoryService;
 
     /**
      * 创建应用
@@ -106,7 +110,8 @@ public class AppController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = appService.removeById(id);
-        return ResultUtils.success(result);
+        boolean removedHistory = chatHistoryService.removeById(id);
+        return ResultUtils.success(result && removedHistory);
     }
 
 
@@ -185,7 +190,8 @@ public class AppController {
         App oldApp = appService.getById(id);
         ThrowUtils.throwIf(oldApp == null, ErrorCode.NOT_FOUND_ERROR);
         boolean result = appService.removeById(id);
-        return ResultUtils.success(result);
+        boolean removedHistory = chatHistoryService.removeById(id);
+        return ResultUtils.success(result && removedHistory);
     }
 
 
@@ -313,8 +319,14 @@ public class AppController {
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
         // 获取当前登录用户
         User loginUser = userService.getLoginUser(request);
-        // 调用服务生成代码（流式）
-        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser);
+        // 先记录用户消息
+        chatHistoryService.saveUserMessage(appId, loginUser.getId(), message);
+        // 调用服务生成代码（流式），并在完成时记录AI消息，失败时记录错误
+        StringBuilder aiBuffer = new StringBuilder();
+        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser)
+                .doOnNext(aiBuffer::append)
+                .doOnError(ex -> chatHistoryService.saveErrorMessage(appId, loginUser.getId(), ex.getMessage()))
+                .doOnComplete(() -> chatHistoryService.saveAiMessage(appId, loginUser.getId(), aiBuffer.toString()));
         // 转换为 ServerSentEvent 格式
         return contentFlux
                 .map(chunk -> {
