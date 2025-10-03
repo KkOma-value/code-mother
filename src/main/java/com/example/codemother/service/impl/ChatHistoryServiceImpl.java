@@ -11,6 +11,7 @@ import com.example.codemother.model.vo.ChatHistoryVO;
 import com.example.codemother.service.AppService;
 import com.example.codemother.service.ChatHistoryService;
 import com.mybatisflex.core.BaseMapper;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class ChatHistoryServiceImpl implements ChatHistoryService {
+public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
     @Autowired
     @Lazy
@@ -122,12 +123,7 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
         return vo;
     }
 
-    @Override
-    public BaseMapper<ChatHistory> getMapper() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMapper'");
-    }
-
+    
         /**
      * 获取查询包装类
      *
