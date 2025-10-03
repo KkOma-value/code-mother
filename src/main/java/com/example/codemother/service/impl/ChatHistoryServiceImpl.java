@@ -10,7 +10,6 @@ import com.example.codemother.model.enums.MessageTypeEnum;
 import com.example.codemother.model.vo.ChatHistoryVO;
 import com.example.codemother.service.AppService;
 import com.example.codemother.service.ChatHistoryService;
-import com.mybatisflex.core.BaseMapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
