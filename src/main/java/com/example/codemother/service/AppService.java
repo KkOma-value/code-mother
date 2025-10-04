@@ -1,5 +1,6 @@
 package com.example.codemother.service;
 
+import com.example.codemother.model.dto.App.AppAddRequest;
 import com.example.codemother.model.dto.App.AppQueryRequest;
 import com.example.codemother.model.entity.User;
 import com.example.codemother.model.vo.AppVO;
@@ -27,6 +28,10 @@ public interface AppService extends IService<App> {
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
     String deployApp(Long appId, User loginUser);
+
+    void generateAppScreenshotAsync(Long appId, String appUrl);
+
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 
 
 }
