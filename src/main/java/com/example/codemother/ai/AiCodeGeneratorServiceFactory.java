@@ -1,6 +1,7 @@
 package com.example.codemother.ai;
 
 import com.example.codemother.Tools.FileWriteTool;
+import com.example.codemother.Tools.ToolManager;
 import com.example.codemother.exception.BusinessException;
 import com.example.codemother.exception.ErrorCode;
 import com.example.codemother.model.enums.CodeGenTypeEnum;
@@ -38,6 +39,10 @@ public class AiCodeGeneratorServiceFactory {
 
     @Autowired
     private ChatHistoryService chatHistoryService;
+
+    @Autowired
+    private ToolManager toolManager;
+
 
     /**
      * 默认提供一个 Bean
@@ -81,7 +86,7 @@ public class AiCodeGeneratorServiceFactory {
             case VUE_PROJECT -> AiServices.builder(AiCodeGeneratorService.class)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(new FileWriteTool())
+                    .tools(toolManager.getAllTools())
                     .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                             toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
                     ))
