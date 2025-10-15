@@ -19,6 +19,9 @@ import reactor.core.publisher.Flux;
 
 import java.io.File;
 
+import com.example.codemother.core.builder.VueProjectBuilder;
+import com.example.codemother.constant.AppConstant;
+
 /**
  * AI 代码生成外观类，组合生成和保存功能
  */
@@ -29,6 +32,9 @@ public class AiCodeGeneratorFacade {
 
     @Autowired
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+
+    @Autowired
+    private VueProjectBuilder vueProjectBuilder;
 
 
     /**
@@ -79,8 +85,8 @@ public class AiCodeGeneratorFacade {
                 yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE, appId);
             }
             case VUE_PROJECT -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE, appId);
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectTokenStream(appId, userMessage);
+                yield processTokenStream(tokenStream, appId);
             }
             default -> {
                 String errorMessage = "不支持的生成类型：" + codeGenTypeEnum.getValue();
@@ -124,7 +130,7 @@ public class AiCodeGeneratorFacade {
      * @param tokenStream TokenStream 对象
      * @return Flux<String> 流式响应
      */
-    private Flux<String> processTokenStream(TokenStream tokenStream) {
+    private Flux<String> processTokenStream(TokenStream tokenStream, Long appId) {
         return Flux.create(sink -> {
             tokenStream.onPartialResponse((String partialResponse) -> {
                         AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
@@ -139,7 +145,14 @@ public class AiCodeGeneratorFacade {
                         sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
                     })
                     .onCompleteResponse((ChatResponse response) -> {
-                        sink.complete();
+                        // 同步构建 Vue 项目，确保在外层完成事件前项目已就绪
+                        String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + "vue_project_" + appId;
+                        boolean buildOk = vueProjectBuilder.buildProject(projectPath);
+                        if (!buildOk) {
+                            sink.error(new RuntimeException("Vue 项目构建失败: " + projectPath));
+                        } else {
+                            sink.complete();
+                        }
                     })
                     .onError((Throwable error) -> {
                         error.printStackTrace();

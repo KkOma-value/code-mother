@@ -3,7 +3,7 @@ package com.example.codemother.langgraph4j.node;
 import com.example.codemother.langgraph4j.ai.ImageCollectionPlanService;
 import com.example.codemother.langgraph4j.model.ImageCollectionPlan;
 import com.example.codemother.langgraph4j.state.WorkflowContext;
-import com.example.codemother.langgraph4j.util.SpringContextUtil;
+import com.example.codemother.config.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;

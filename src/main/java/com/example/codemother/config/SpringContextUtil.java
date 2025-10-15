@@ -1,4 +1,4 @@
-package com.example.codemother.langgraph4j.util;
+package com.example.codemother.config;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -20,5 +20,9 @@ public class SpringContextUtil implements ApplicationContextAware {
 
     public static Object getBean(String name) {
         return applicationContext.getBean(name);
+    }
+
+    public static <T> T getBean(String name, Class<T> clazz) {
+        return applicationContext.getBean(name, clazz);
     }
 }

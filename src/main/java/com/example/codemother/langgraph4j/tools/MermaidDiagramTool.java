@@ -12,7 +12,7 @@ import com.example.codemother.langgraph4j.state.ImageResource;
 import com.example.codemother.manager.CosManager;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ import java.util.List;
 @Component
 public class MermaidDiagramTool {
 
-    @Resource
+    @Autowired
     private CosManager cosManager;
     
     @Tool("将 Mermaid 代码转换为架构图图片，用于展示系统结构和技术关系")

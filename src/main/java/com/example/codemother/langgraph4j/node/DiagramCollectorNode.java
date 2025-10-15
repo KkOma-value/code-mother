@@ -4,7 +4,7 @@ import com.example.codemother.langgraph4j.model.ImageCollectionPlan;
 import com.example.codemother.langgraph4j.state.ImageResource;
 import com.example.codemother.langgraph4j.state.WorkflowContext;
 import com.example.codemother.langgraph4j.tools.MermaidDiagramTool;
-import com.example.codemother.langgraph4j.util.SpringContextUtil;
+import com.example.codemother.config.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;

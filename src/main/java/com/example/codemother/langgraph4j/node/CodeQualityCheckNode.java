@@ -1,7 +1,7 @@
 package com.example.codemother.langgraph4j.node;
 
 import cn.hutool.core.util.StrUtil;
-import com.example.codemother.langgraph4j.util.SpringContextUtil;
+import com.example.codemother.config.SpringContextUtil;
 import com.example.codemother.langgraph4j.ai.CodeQualityCheckService;
 import com.example.codemother.langgraph4j.model.QualityResult;
 import com.example.codemother.langgraph4j.state.WorkflowContext;

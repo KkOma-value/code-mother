@@ -3,9 +3,9 @@ package com.example.codemother.ai;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.example.codemother.config.SpringContextUtil;
 
 /**
  * AI代码生成类型路由服务工厂
@@ -16,16 +16,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AiCodeGenTypeRoutingServiceFactory {
 
-    @Autowired
-    private ChatModel chatModel;
-
     /**
-     * 创建AI代码生成类型路由服务实例
+     * 创建AI代码生成类型路由服务实例（动态获取 prototype，支持并发）
      */
-    @Bean
-    public AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService() {
+    public AiCodeGenTypeRoutingService createAiCodeGenTypeRoutingService() {
+        ChatModel chatModel = SpringContextUtil.getBean("routingChatModelPrototype", ChatModel.class);
         return AiServices.builder(AiCodeGenTypeRoutingService.class)
                 .chatModel(chatModel)
                 .build();
+    }
+
+    /**
+     * 默认提供一个 Bean
+     */
+    @Bean
+    public AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService() {
+        return createAiCodeGenTypeRoutingService();
     }
 }

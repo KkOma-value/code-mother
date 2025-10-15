@@ -5,10 +5,12 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Configuration
 @ConfigurationProperties(prefix = "spring.data.redis")
 @Data
+@ConditionalOnProperty(prefix = "codemother.features", name = "redis", havingValue = "true", matchIfMissing = true)
 public class RedisChatMemoryStoreConfig {
 
     private String host;

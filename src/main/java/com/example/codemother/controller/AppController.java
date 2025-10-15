@@ -27,6 +27,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.codemother.model.entity.App;
 import com.example.codemother.service.AppService;
 import com.example.codemother.service.ChatHistoryService;
+import com.example.codemother.ratelimit.annotation.RateLimit;
+import com.example.codemother.ratelimit.enums.RateLimitType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -139,6 +142,11 @@ public class AppController {
      * @return 精选应用列表
      */
     @PostMapping("/good/list/page/vo")
+    @Cacheable(
+            value = "good_app_page",
+            key = "T(com.example.codemother.utils.CacheKeyUtils).generateKey(#appQueryRequest)",
+            condition = "#appQueryRequest.pageNum <= 10"
+    )
     public BaseResponse<Page<AppVO>> listGoodAppVOByPage(@RequestBody AppQueryRequest appQueryRequest) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 限制每页最多 20 个
@@ -296,6 +304,7 @@ public class AppController {
      * @return 生成结果流
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
                                                        @RequestParam String message,
                                                        @RequestParam(defaultValue = "false") boolean agent,
@@ -387,5 +396,6 @@ public class AppController {
         projectDownloadService.downloadProjectAsZip(sourceDirPath, downloadFileName, response);
     }
 
+    
 
 }

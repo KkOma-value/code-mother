@@ -6,7 +6,7 @@ import com.example.codemother.exception.ErrorCode;
 import com.example.codemother.model.entity.User;
 import com.example.codemother.model.enums.UserRoleEnum;
 import com.example.codemother.service.UserService;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -20,7 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class AuthInterceptor {
 
-    @Resource
+    @Autowired
     private UserService userService;
 
     /**
