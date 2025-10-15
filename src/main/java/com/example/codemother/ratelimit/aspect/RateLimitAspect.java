@@ -20,7 +20,7 @@ import org.redisson.api.RateType;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -28,7 +28,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 @Component
-@ConditionalOnProperty(prefix = "codemother.features", name = "rate-limit", havingValue = "true", matchIfMissing = true)
+@Profile("prod")
 public class RateLimitAspect {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitAspect.class);

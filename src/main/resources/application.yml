@@ -36,14 +36,3 @@ knife4j:
   setting:
     language: zh_cn
 
-codemother:
-  features:
-    # 本地环境下禁用 Redis 与接口限流，避免连接失败
-    redis: false
-    rate-limit: false
-
-management:
-  health:
-    redis:
-      enabled: false
-

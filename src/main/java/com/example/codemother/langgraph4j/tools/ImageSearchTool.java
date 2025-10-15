@@ -1,5 +1,6 @@
 package com.example.codemother.langgraph4j.tools;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
@@ -23,13 +24,18 @@ public class ImageSearchTool {
 
     private static final String PEXELS_API_URL = "https://api.pexels.com/v1/search";
 
-    @Value("${pexels.api-key}")
+    @Value("${pexels.api-key:}")
     private String pexelsApiKey;
 
     @Tool("搜索内容相关的图片，用于网站内容展示")
     public List<ImageResource> searchContentImages(@P("搜索关键词") String query) {
         List<ImageResource> imageList = new ArrayList<>();
         int searchCount = 12;
+        // 未配置 API Key 时优雅降级，避免应用启动失败
+        if (StrUtil.isBlank(pexelsApiKey)) {
+            log.warn("未配置 pexels.api-key，跳过内容图片搜索");
+            return imageList;
+        }
         // 调用 API，注意释放资源
         try (HttpResponse response = HttpRequest.get(PEXELS_API_URL)
                 .header("Authorization", pexelsApiKey)

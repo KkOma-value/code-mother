@@ -7,6 +7,7 @@ import com.qcloud.cos.model.PutObjectResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 
@@ -16,6 +17,7 @@ import java.io.File;
  * @author kkoma
  */
 @Component
+@Profile("prod")
 @Slf4j
 public class CosManager {
 

@@ -25,7 +25,7 @@ import java.util.List;
 @Component
 public class MermaidDiagramTool {
 
-    @Autowired
+    @Autowired(required = false)
     private CosManager cosManager;
     
     @Tool("将 Mermaid 代码转换为架构图图片，用于展示系统结构和技术关系")
@@ -35,6 +35,11 @@ public class MermaidDiagramTool {
             return new ArrayList<>();
         }
         try {
+            // 未启用 COS 时直接返回空结果，避免上传失败
+            if (cosManager == null) {
+                log.info("当前环境未启用 COS，跳过架构图生成与上传");
+                return new ArrayList<>();
+            }
             // 转换为SVG图片
             File diagramFile = convertMermaidToSvg(mermaidCode);
             // 上传到COS

@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 /**
  * 腾讯云COS配置类
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * @author yupi
  */
 @Configuration
+@Profile("prod")
 @ConfigurationProperties(prefix = "cos.client")
 @Data
 public class CosClientConfig {

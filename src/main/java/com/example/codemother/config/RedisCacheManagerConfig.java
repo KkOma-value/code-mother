@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -16,7 +16,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 @Configuration
-@ConditionalOnProperty(prefix = "codemother.features", name = "redis", havingValue = "true", matchIfMissing = true)
+@ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisCacheManagerConfig {
 
     @Autowired
@@ -34,7 +34,7 @@ public class RedisCacheManagerConfig {
                 .disableCachingNullValues() // 禁用 null 值缓存
                 // key 使用 String 序列化器
                 .serializeKeysWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new StringRedisSerializer()))
+                        .fromSerializer(new StringRedisSerializer()));
                 // value 使用 JSON 序列化器（支持复杂对象）
                 // 为避免反序列化类型不明确的问题，先注释掉以下配置，使用默认 JDK 序列化
                 // .serializeValuesWith(RedisSerializationContext.SerializationPair

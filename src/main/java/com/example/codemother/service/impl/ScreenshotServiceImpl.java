@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class ScreenshotServiceImpl implements ScreenshotService {
 
-    @Autowired
+    @Autowired(required = false)
     private CosManager cosManager;
 
     @Override
@@ -49,6 +49,11 @@ public class ScreenshotServiceImpl implements ScreenshotService {
      * @return 对象存储访问URL，失败返回null
      */
     private String uploadScreenshotToCos(String localScreenshotPath) {
+        // 本地或非生产环境未启用 COS 时，直接降级为不上传
+        if (cosManager == null) {
+            log.info("当前环境未启用 COS，跳过截图上传");
+            return null;
+        }
         if (StrUtil.isBlank(localScreenshotPath)) {
             return null;
         }
