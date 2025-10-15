@@ -36,8 +36,9 @@ public class RedisCacheManagerConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair
                         .fromSerializer(new StringRedisSerializer()))
                 // value 使用 JSON 序列化器（支持复杂对象）
-                .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
+                // 为避免反序列化类型不明确的问题，先注释掉以下配置，使用默认 JDK 序列化
+                // .serializeValuesWith(RedisSerializationContext.SerializationPair
+                //         .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
         
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(defaultConfig)
