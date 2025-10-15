@@ -298,6 +298,7 @@ public class AppController {
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
                                                        @RequestParam String message,
+                                                       @RequestParam(defaultValue = "false") boolean agent,
                                                        HttpServletRequest request) {
         // 参数校验
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
@@ -308,7 +309,7 @@ public class AppController {
         chatHistoryService.saveUserMessage(appId, loginUser.getId(), message);
         // 调用服务生成代码（流式），并在完成时记录AI消息，失败时记录错误
         StringBuilder aiBuffer = new StringBuilder();
-        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser)
+        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser, agent)
                 .doOnNext(aiBuffer::append)
                 .doOnError(ex -> chatHistoryService.saveErrorMessage(appId, loginUser.getId(), ex.getMessage()))
                 .doOnComplete(() -> chatHistoryService.saveAiMessage(appId, loginUser.getId(), aiBuffer.toString()));

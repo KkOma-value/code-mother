@@ -9,6 +9,8 @@ import cn.hutool.core.util.StrUtil;
 import com.example.codemother.ai.AiCodeGenTypeRoutingService;
 import com.example.codemother.core.builder.VueProjectBuilder;
 import com.example.codemother.core.handler.StreamHandlerExecutor;
+import com.example.codemother.core.handler.SimpleTextStreamHandler;
+import com.example.codemother.langgraph4j.CodeGenWorkflow;
 import com.example.codemother.model.dto.App.AppAddRequest;
 import com.example.codemother.service.ScreenshotService;
 import lombok.extern.slf4j.Slf4j;
@@ -280,4 +282,38 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     }
 
 
+    @Override
+    public Flux<String> chatToGenCode(Long appId, String message, User loginUser, boolean agent) {
+        // 1. 参数校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
+        // 2. 查询应用信息
+        App app = this.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
+        // 3. 验证用户是否有权限访问该应用，仅本人可以生成代码
+        if (!app.getUserId().equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限访问该应用");
+        }
+        String codeGenTypeStr = app.getCodeGenType();
+        CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenTypeStr);
+        if (codeGenTypeEnum == null) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型");
+        }
+        // 4. 通过校验后，添加用户消息到对话历史
+        chatHistoryService.addChatMessage(appId, message, MessageTypeEnum.USER.getValue(), loginUser.getId());
+
+        // 5. 根据 agent 参数选择生成方式
+        Flux<String> codeStream;
+        if (agent) {
+            // Agent 模式：使用工作流生成代码（Flux 流）
+            codeStream = new CodeGenWorkflow().executeWorkflowWithFlux(message, appId);
+            // 工作流输出为纯文本事件，使用简单文本流处理器统一保存历史
+            return new SimpleTextStreamHandler().handle(codeStream, chatHistoryService, appId, loginUser);
+        } else {
+            // 传统模式：调用 AI 生成代码（流式）
+            codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
+            // 选择合适的处理器并保存历史
+            return streamHandlerExecutor.doExecute(codeStream, chatHistoryService, appId, loginUser, codeGenTypeEnum);
+        }
+    }
 }

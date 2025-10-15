@@ -15,6 +15,8 @@ import java.util.Map;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 
+
+@Deprecated
 @Slf4j
 public class WorkflowApp {
 

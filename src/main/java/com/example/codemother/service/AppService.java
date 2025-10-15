@@ -34,4 +34,17 @@ public interface AppService extends IService<App> {
     Long createApp(AppAddRequest appAddRequest, User loginUser);
 
 
+    /**
+     * 应用聊天生成代码（流式）
+     *
+     * @param appId   应用 ID
+     * @param message 用户消息
+     * @param loginUser 登录用户
+     * @param agent 是否启用 Agent 模式
+     * @return 生成的代码流
+     */
+    Flux<String> chatToGenCode(Long appId, String message, User loginUser, boolean agent);
+
+
+
 }

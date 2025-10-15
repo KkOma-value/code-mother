@@ -1,5 +1,7 @@
 package com.example.codemother.langgraph4j.state;
 
+import com.example.codemother.langgraph4j.model.ImageCollectionPlan;
+import com.example.codemother.langgraph4j.model.QualityResult;
 import com.example.codemother.model.enums.CodeGenTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +23,22 @@ import java.util.Map;
 @AllArgsConstructor
 public class WorkflowContext implements Serializable {
 
+
+    /**
+     * 图片收集计划
+     */
+    private ImageCollectionPlan imageCollectionPlan;
+
+
+    /**
+     * 并发图片收集的中间结果字段
+     */
+    private List<ImageResource> contentImages;
+    private List<ImageResource> illustrations;
+    private List<ImageResource> diagrams;
+    private List<ImageResource> logos;
+
+
     /**
      * WorkflowContext 在 MessagesState 中的存储key
      */
@@ -35,6 +53,11 @@ public class WorkflowContext implements Serializable {
      * 用户原始输入的提示词
      */
     private String originalPrompt;
+
+    /**
+     * 应用 ID（用于区分不同应用或保存结果归属）
+     */
+    private Long appId;
 
     /**
      * 图片资源字符串
@@ -70,6 +93,12 @@ public class WorkflowContext implements Serializable {
      * 错误信息
      */
     private String errorMessage;
+
+    /**
+     * 质量检查结果
+     */
+    private QualityResult qualityResult;
+
 
 
     @Serial
